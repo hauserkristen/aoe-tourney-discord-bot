@@ -26,6 +26,7 @@ def main():
         tbl_settings.insert_many([
             {"name": "rec_channels"},
             {"name": "summary_channel"},
+            {"name": "sign_up_channel"},
             {"name": "games_per_stage"}
         ])
     

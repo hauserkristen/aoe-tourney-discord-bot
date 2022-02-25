@@ -58,14 +58,25 @@ def get_tourney_channels(user_name: str, password: str, guild_name: str):
 
     # Get rec channel setting ID
     rec_channel_id = _find_setting_id(client, 'rec_channels')
+    sign_up_channel_id = _find_setting_id(client, 'sign_up_channel')
 
     # Query for settings
-    setting = tourney_settings.find({'setting_id': rec_channel_id})
-    setting_value = setting['value'].split(',')
+    rec_setting = tourney_settings.find({'setting_id': rec_channel_id})
+    sign_up_setting = tourney_settings.find({'setting_id': sign_up_channel_id})
+
+    # Split rec setting
+    rec_channels = rec_setting['value'].split(',')
+    sign_up_channel = sign_up_setting['value']
 
     client.close()
 
-    return setting_value
+    # Create output map
+    output = {}
+    output[sign_up_channel] = 'sign_up'
+    for r_c in rec_channels:
+        output[r_c] = 'game_rec'
+
+    return output
 
 def get_tourney_summary_channel(user_name: str, password: str, guild_name: str):
     # Connect to DB

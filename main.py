@@ -11,7 +11,7 @@ from pathlib import Path
 # Internal imports
 from constants import *
 from sign_ups import parse_sign_up
-from tourney_recs import parse_discord_message, parse_game_files, parse_zipped_game_files, ParsedMessge
+from tourney_recs import parse_discord_message, parse_game_files, parse_zipped_game_files
 from db import *
 
 # Load data env
@@ -178,7 +178,7 @@ async def process_message(message: discord.Message):
     return
 
                 
-async def update_summary_message(new_rec: ParsedMessge, guild_name: str, summary_channel_name: str, group_name: str):
+async def update_summary_message(new_rec: GameSet, guild_name: str, summary_channel_name: str, group_name: str):
     # Find last message sent by bot
     guild = discord.utils.find(lambda g: g.name == guild_name, client.guilds)
     channel = discord.utils.find(lambda g: g.name == summary_channel_name, guild.channels)
