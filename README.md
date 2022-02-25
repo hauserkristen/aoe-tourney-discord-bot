@@ -17,7 +17,7 @@ Open items to work on, generally listed in order of importance:
 Notes for Paradox:
 - Please have them use in game name for the score.
 - The spoiler tag character '|' is a heavily used parsing symbol, if their IGN uses '|' please have them omit it. Our name matching should still match them correctly to the name in the rec. 
-- General format
+- General format:  
     paradox303 || 3 : 0 || Stealth_R_Us  
     Round: Round of 32  
     Civ Draft: https://aoe2cm.net/draft/sRnmN  
