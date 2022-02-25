@@ -18,10 +18,10 @@ Notes for Paradox:
 - Please have them use in game name for the score.
 - The spoiler tag character '|' is a heavily used parsing symbol, if their IGN uses '|' please have them omit it. Our name matching should still match them correctly to the name in the rec. 
 - General format
-    paradox303 || 3 : 0 || Stealth_R_Us
-    Round: Round of 32
-    Civ Draft: https://aoe2cm.net/draft/sRnmN
-    paradox HM: Golden Hill, Houseboat
-    Stealth_R_Us HM: Mired, Compass
+    paradox303 || 3 : 0 || Stealth_R_Us  
+    Round: Round of 32  
+    Civ Draft: https://aoe2cm.net/draft/sRnmN  
+    paradox HM: Golden Hill, Houseboat  
+    Stealth_R_Us HM: Mired, Compass  
 - Attached games must be labeled, must have '{p1}_vs_{p2}_g1.aoe2record' or '{p1}_vs_{p2}_G1.aoe2record' and so on for the various games in the title. 
 - Reporting must be completed in 1 message and the recs must be attached to that single message. If errors are made, they can just edit that original message and the bot will try to revalidate it. 
