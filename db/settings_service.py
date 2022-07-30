@@ -1,12 +1,12 @@
 # External Includes
 from pymongo import MongoClient
 import json
+from typing import Any
 
 # Internal Includes
-from .db_connect import database_connect
-from .utils import Settings
+from .db_connect import database_connect, convert_to_df
 
-def post_settings(user_name: str, password: str, settings: Settings):
+def post_tourney_setting(user_name: str, password: str, setting_name: str, setting_value: Any):
     # Connect to DB
     client = database_connect(user_name, password)
 
@@ -30,10 +30,10 @@ def _find_tourney_settings(client: MongoClient, guild_name: str):
     tbl_tourney_settings = database['tourney_settings']
 
     # Get tournament ID
-    tourney_id = tbl_tournaments.find({'discord_name' : guild_name})['_id']
+    tourney_id = convert_to_df(tbl_tournaments, {'discord_name' : guild_name})['_id']
 
     # Query for settings
-    tourney_settings = tbl_tourney_settings.find({'tournament_id': tourney_id})
+    tourney_settings = convert_to_df(tbl_tourney_settings, {'tournament_id': tourney_id})
 
     return tourney_settings
 
@@ -45,7 +45,7 @@ def _find_setting_id(client: MongoClient, setting_name: str):
     tbl_settings = database['settings']
 
     # Get tournament ID
-    setting_id = tbl_settings.find({'name' : setting_name})['_id']
+    setting_id = convert_to_df(tbl_settings, {'name' : setting_name})['_id']
 
     return setting_id
 
@@ -61,8 +61,8 @@ def get_tourney_channels(user_name: str, password: str, guild_name: str):
     sign_up_channel_id = _find_setting_id(client, 'sign_up_channel')
 
     # Query for settings
-    rec_setting = tourney_settings.find({'setting_id': rec_channel_id})
-    sign_up_setting = tourney_settings.find({'setting_id': sign_up_channel_id})
+    rec_setting = convert_to_df(tourney_settings, {'setting_id': rec_channel_id})
+    sign_up_setting = convert_to_df(tourney_settings, {'setting_id': sign_up_channel_id})
 
     # Split rec setting
     rec_channels = rec_setting['value'].split(',')
@@ -89,7 +89,7 @@ def get_tourney_summary_channel(user_name: str, password: str, guild_name: str):
     rec_channel_id = _find_setting_id(client, 'summary_channel')
 
     # Query for settings
-    setting = tourney_settings.find({'setting_id': rec_channel_id})
+    setting = convert_to_df(tourney_settings, {'setting_id': rec_channel_id})
     setting_value = setting['value']
 
     client.close()
@@ -107,7 +107,7 @@ def get_tourney_games_per_stage(user_name: str, password: str, guild_name: str):
     games_per_stage_id = _find_setting_id(client, 'games_per_stage')
 
     # Query for settings
-    setting = tourney_settings.find({'setting_id': games_per_stage_id})
+    setting = convert_to_df(tourney_settings, {'setting_id': games_per_stage_id})
     setting_value = setting['value']
 
     # Convert to dict from JSON
@@ -129,10 +129,10 @@ def get_tourney_map_pool(user_name: str, password: str, guild_name: str):
     tbl_maps = database['maps']
 
     # Get tournament ID
-    tourney_id = tbl_tournaments.find({'discord_name' : guild_name})['_id']
+    tourney_id = convert_to_df(tbl_tournaments, {'discord_name' : guild_name})['_id']
 
     # Get map names 
-    maps = tbl_maps.find({'tournament_id': tourney_id})
+    maps = convert_to_df(tbl_maps, {'tournament_id': tourney_id})
     map_values = []
     for m in maps:
         map_values.append(m['name'])
@@ -144,3 +144,33 @@ def get_tourney_map_pool(user_name: str, password: str, guild_name: str):
 def delete_settings():
     # TODO
     pass
+
+def create_settings(user_name: str, password: str):
+    client = database_connect(user_name, password)
+
+    # Get database
+    database = client['aoe-game-bot']
+
+    # Get collections
+    tbl_settings = database['settings']
+
+    # Set up global settings
+    tbl_settings.insert_many([
+        {"name": "rec_channels"},
+        {"name": "summary_channel"},
+        {"name": "sign_up_channel"},
+        {"name": "games_per_stage"}
+    ])
+    return
+
+def get_settings(user_name: str, password: str):
+    client = database_connect(user_name, password)
+
+    # Get database
+    database = client['aoe-game-bot']
+
+    # Get collections
+    tbl_settings = database['settings']
+
+    # Get global settings 
+    return convert_to_df(tbl_settings, columns={'name': 1, '_id': 0})

@@ -4,7 +4,6 @@ import os
 import discord
 import datetime
 from dotenv import load_dotenv
-import json
 from pathlib import Path
 
 
@@ -13,6 +12,7 @@ from constants import *
 from sign_ups import parse_sign_up
 from tourney_recs import parse_discord_message, parse_game_files, parse_zipped_game_files
 from db import *
+from discord_commands import parse_command
 
 # Load data env
 load_dotenv()
@@ -69,7 +69,7 @@ async def on_guild_join(guild: discord.Guild):
 
 @client.event
 async def on_guild_leave(guild: discord.Guild):
-    # TODO: Need to remove all fields from DB for this guild
+    delete_guild_tourneys(DB_USER_NAME, DB_PASSWORD, guild.name)
     return
 
 async def send_error_message(message: discord.Message, error_message: str):
@@ -91,7 +91,11 @@ async def process_message(message: discord.Message):
         # Get channel type
         channel_type = monitored_channels[message.channel.name]
 
-        # TODO: Need to add a channel type for configuring settings. How should this work?
+        # Check for discord command
+        if parse_command(DB_USER_NAME, DB_PASSWORD, message):
+            return
+
+        # Check for sign up or game rec submissions
         if channel_type == 'sign_up':
             registration, error_message = parse_sign_up(message.content)
             
@@ -176,8 +180,7 @@ async def process_message(message: discord.Message):
                     return
 
     return
-
-                
+ 
 async def update_summary_message(new_rec: GameSet, guild_name: str, summary_channel_name: str, group_name: str):
     # Find last message sent by bot
     guild = discord.utils.find(lambda g: g.name == guild_name, client.guilds)

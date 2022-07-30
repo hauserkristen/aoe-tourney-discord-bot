@@ -16,16 +16,6 @@ class Tournament():
             raise Exception('Tournament guild name must not be empty but recieved: {}'.format(self.guild_name))
         return True
 
-class Settings():
-    def __init__(self):
-        pass
-
-    def to_dict(self):
-        return {}
-
-    def validate(self):
-        return True
-
 class Game():
     def __init__(self):
         self.p1_civ = ''

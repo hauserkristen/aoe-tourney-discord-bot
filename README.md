@@ -3,10 +3,10 @@ Goals of the Bot:
 - Writes a summary of new verified games in one channel every day
 - Keeps an updated summary of stats by bracket/map/civ in another channel
 
-Open items to work on, generally listed in order of importance:
-- Migrate to DB storage for configuration and stats
-    - Moving to MongoDB hosted on Google
-    - Need to figure out how to configure tourney settings
+In Progress
+- Using commands to configure a variety of settings
+    - Setup tourney
+    - Tourney settings
         - map pool
         - define games per stage (Bo3, Bo5, etc)
         - specify channels for:
@@ -14,13 +14,14 @@ Open items to work on, generally listed in order of importance:
             - sign up channel
             - maintenance output channel
             -  (Potential) stats channel
-- How to accomodate TG format for sets/participant
-- How to accomodate multiple tourneys in a single discord
+    - Allow admin win
+
+Open items to work on, generally listed in order of importance:
 - Improved logging of errors and when they occur
-- How to allow admin win reporting?
 - Accomodate CM for map drafting
 - Accomodate non-CM for civ drafting (what if hidden civ no repeat, or just global bans)
 - Switched to "stage" notation since it could have a group stage before main event?
+- How to accomodate TG format for sets/participant?
 
 Notes for Users:
 - Use in game name for the score.

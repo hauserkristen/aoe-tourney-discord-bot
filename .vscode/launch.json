@@ -13,13 +13,6 @@
             "console": "integratedTerminal"
         },
         {
-            "name": "Python: Offline Main",
-            "type": "python",
-            "request": "launch",
-            "program": "main_offline.py",
-            "console": "integratedTerminal"
-        },
-        {
             "name": "Python: DB Main",
             "type": "python",
             "request": "launch",

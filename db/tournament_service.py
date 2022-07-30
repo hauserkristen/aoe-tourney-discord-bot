@@ -1,5 +1,5 @@
 # Internal Includes
-from .db_connect import database_connect
+from .db_connect import database_connect, convert_to_df
 from .utils import Tournament
 
 def post_tourney(user_name: str, password: str, tourney_info: Tournament):
@@ -17,7 +17,7 @@ def post_tourney(user_name: str, password: str, tourney_info: Tournament):
     client.close()
     return
 
-def delete_tourney(user_name: str, password: str, guild_name: str):
+def delete_tourney(user_name: str, password: str, tourney_info: Tournament):
     # Connect to DB
     client = database_connect(user_name, password)
 
@@ -32,11 +32,8 @@ def delete_tourney(user_name: str, password: str, guild_name: str):
     tbl_games = database['games']
     tbl_participants = database['participants']
 
-    # Query for deletion
-    name_query = {'discord_name' : guild_name}
-
     # Get tournament ID
-    tourney_id = tbl_tournaments.find(name_query)['_id']
+    tourney_id = convert_to_df(tbl_tournaments, tourney_info.to_dict)['_id']
 
     # Query for rest of deletions
     id_query = {'_id' : tourney_id}

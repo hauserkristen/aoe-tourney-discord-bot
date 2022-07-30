@@ -1,5 +1,5 @@
 # Internal Includes
-from .db_connect import database_connect
+from .db_connect import database_connect, convert_to_df
 from .utils import Participant
 
 def post_participant(user_name: str, password: str, participant: Participant):
@@ -29,10 +29,10 @@ def get_participant(user_name: str, password: str, guild_name: str, discord_name
     tbl_participants = database['participants']
 
     # Get tournament ID
-    tourney_id = tbl_tournaments.find({'discord_name' : guild_name})['_id']
+    tourney_id = convert_to_df(tbl_tournaments, {'discord_name' : guild_name})['_id']
 
     # Query for settings
-    participant = tbl_participants.find({'tournament_id': tourney_id, 'discord_name': discord_name})
+    participant = convert_to_df(tbl_participants, {'tournament_id': tourney_id, 'discord_name': discord_name})
 
     client.close()
 
@@ -50,7 +50,7 @@ def delete_participant(user_name: str, password: str, guild_name: str, discord_n
     tbl_participants = database['participants']
 
     # Get tournament ID
-    tourney_id = tbl_tournaments.find({'discord_name' : guild_name})['_id']
+    tourney_id = convert_to_df(tbl_tournaments, {'discord_name' : guild_name})['_id']
 
     # Delete by query
     tbl_participants.delete_one({'tournament_id': tourney_id, 'discord_name': discord_name})
