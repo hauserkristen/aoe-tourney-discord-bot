@@ -42,7 +42,7 @@ def parse_discord_message(message: str, tourney_map_pool: List[str], games_per_r
         error_message = 'The recently submitted set does not meet format due to missing or incomplete field: Stage. Please check sample and correct submission. Thank you'
         return game_set, [], error_message, False
     else:
-        game_set.stage = parse_stage(stage[0].strip())
+        game_set.stage = parse_stage(stage[0].strip(), games_per_round)
 
         # Error handling for unknown stage
         if game_set.stage == -1:
@@ -68,7 +68,7 @@ def parse_discord_message(message: str, tourney_map_pool: List[str], games_per_r
         for i in range(len(available_maps)):
             i_map = available_maps[i]
             if i_map not in tourney_map_pool:
-                error_message = 'The recently submitted set has a map mismatch, {} was played but not in the map pool (). Please check sample and correct submission. Thank you'.format(i_map, ','.join(tourney_map_pool))
+                error_message = 'The recently submitted set has a map mismatch, {} was played but not in the map pool ({}). Please check sample and correct submission. Thank you'.format(i_map, ','.join(tourney_map_pool))
                 return game_set, available_maps, error_message, False
 
     if len(score) == 0 or (len(score) > 0 and len(score[0]) < 3):

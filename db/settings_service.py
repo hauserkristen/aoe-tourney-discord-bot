@@ -2,7 +2,7 @@
 from pandas import DataFrame
 from pymongo import MongoClient
 import json
-from typing import Any
+from typing import Any, Dict
 
 # Internal Includes
 from .db_connect import database_connect, convert_to_df
@@ -63,7 +63,7 @@ def get_tourney_channels(user_name: str, password: str, guild_tourneys: DataFram
     # Connect to DB
     client = database_connect(user_name, password)
 
-    tourney_channels = {}
+    tourney_channels: Dict[str, Dict[str, str]] = {}
     for tourney in guild_tourneys:
         tourney_info = Tournament(tourney['name'], tourney['guild_name'])
         tourney_channels[tourney_info.name] = {}

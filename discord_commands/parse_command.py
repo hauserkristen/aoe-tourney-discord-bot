@@ -2,30 +2,30 @@
 import discord
 
 # Internal imports
-from db import get_settings, post_tourney, post_tourney_setting, Tournament
+from db import get_settings
+from .tourney_commands  import setup_tourney
+from .setting_commands import save_settings
+from .set_comamnds import log_admin_win
 
 def parse_command(user_name: str, password: str, message: discord.Message):
-    # Check for admin user
+    # TODO: Check for admin user
 
     # Check for setup commands
     if message.content.startswith('!setup'):
         # Parse setup field
         field =  message.content.split(' ')[1].lower()
 
-        # Setup tourney
-        if field == 'tournament':
-            tourney_name = message.content.split('tournament')[-1].strip()
-            tourney = Tournament(tourney_name, message.guild.name)
-            post_tourney(user_name, password, tourney)
-        # Settings Configuration
+        # Get setting names
         setting_names = get_settings(user_name, password)['name']
-        if field in setting_names.values:
-            setting_value = '' # TODO
-            post_tourney_setting(user_name, password, field, setting_value)
-        
+
+        # Setup Tourney
+        if field == 'tournament':
+            setup_tourney(user_name, password, message)
+        # Settings Configuration
+        elif field in setting_names.values:
+            save_settings(user_name, password, message, field)
     # Check for Admin W/L
     elif message.content.startswith('!admin_win'):
-        # TODO
-        pass
+        log_admin_win(user_name, password, message)
 
     return

@@ -11,10 +11,7 @@ DB_PASSWORD = os.getenv('DB_PASSWORD')
 
 
 def main():
-    # Should only be run once
-    #create_settings(DB_USER_NAME, DB_PASSWORD)
-
-    get_settings(DB_USER_NAME, DB_PASSWORD)
+    create_settings(DB_USER_NAME, DB_PASSWORD)
 
 if __name__ == '__main__':
     main()

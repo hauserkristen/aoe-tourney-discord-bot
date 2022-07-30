@@ -30,7 +30,7 @@ def parse_zipped_game_files(zipped_filepath: str,  game_set: GameSet, available_
     game_filenames = [Path(f).name for f in game_filepaths]
 
     # Parse
-    game_set, error_message = parse_game_files(game_filenames, game_filepaths, available_maps, game_set, num_games)
+    game_set, error_message = parse_game_files(game_filenames, game_filepaths, game_set, available_maps, num_games)
 
     # Remove destination directory and zip
     if zip_destination.exists() and zip_destination.is_dir():
@@ -129,26 +129,26 @@ def parse_game_files(aoe_game_filenames: List[str], aoe_game_files: list, game_s
         if ig_player_one_name == game_set.p1_name:
             # Player one is player one in game, check civs of both players
             if ig_player_one_civ not in game_set.p1_available_civs:
-                error_message = 'The recently submitted set has civ mismatch, {} was not in civ pool ({}) for {}. Please check sample and correct submission. Thank you'.format(player_one_civ, ','.join(game_set.p1_available_civs), ig_player_one_name)
+                error_message = 'The recently submitted set has civ mismatch, {} was not in civ pool ({}) for {}. Please check sample and correct submission. Thank you'.format(ig_player_one_civ, ','.join(game_set.p1_available_civs), ig_player_one_name)
                 return game_set, error_message
             else:
                 player_one_civ = ig_player_one_civ
 
-            if ig_player_two_name not in game_set.p2_available_civs:
-                error_message = 'The recently submitted set has civ mismatch, {} was not in civ pool ({}) for {}. Please check sample and correct submission. Thank you'.format(player_two_civ, ','.join(game_set.p2_available_civs), ig_player_two_name)
+            if ig_player_two_civ not in game_set.p2_available_civs:
+                error_message = 'The recently submitted set has civ mismatch, {} was not in civ pool ({}) for {}. Please check sample and correct submission. Thank you'.format(ig_player_two_civ, ','.join(game_set.p2_available_civs), ig_player_two_name)
                 return game_set, error_message
             else:
                 player_two_civ = ig_player_two_name
         else:
             # Player one is player one in game, check civs of both players
             if ig_player_one_civ not in game_set.p2_available_civs:
-                error_message = 'The recently submitted set has civ mismatch, {} was not in civ pool ({}) for {}. Please check sample and correct submission. Thank you'.format(player_one_civ, ','.join(game_set.p2_available_civs), ig_player_one_name)
+                error_message = 'The recently submitted set has civ mismatch, {} was not in civ pool ({}) for {}. Please check sample and correct submission. Thank you'.format(ig_player_one_civ, ','.join(game_set.p2_available_civs), ig_player_one_name)
                 return game_set, error_message
             else:
                 player_two_civ = ig_player_one_civ
 
             if ig_player_two_name not in game_set.p1_available_civs:
-                error_message = 'The recently submitted set has civ mismatch, {} was not in civ pool ({}) for {}. Please check sample and correct submission. Thank you'.format(player_two_civ, ','.join(game_set.p1_available_civs), ig_player_two_name)
+                error_message = 'The recently submitted set has civ mismatch, {} was not in civ pool ({}) for {}. Please check sample and correct submission. Thank you'.format(ig_player_two_civ, ','.join(game_set.p1_available_civs), ig_player_two_name)
                 return game_set, error_message
             else:
                 player_one_civ = ig_player_two_name
