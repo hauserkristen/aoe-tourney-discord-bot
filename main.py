@@ -57,17 +57,6 @@ async def on_message_delete(message: discord.Message):
     return
 
 @client.event
-async def on_guild_join(guild: discord.Guild):
-    # Create object
-    # TODO: What if tourney name is not guild name?
-    tourney_info = Tournament(guild.name, guild.name)
-
-    # Add to DB
-    success = post_tourney(DB_USER_NAME, DB_PASSWORD, tourney_info)
-
-    # TODO: Handle failed addition?
-
-@client.event
 async def on_guild_leave(guild: discord.Guild):
     delete_guild_tourneys(DB_USER_NAME, DB_PASSWORD, guild.name)
     return
@@ -84,20 +73,20 @@ async def process_message(message: discord.Message):
         return
 
     # Create tourney object
-    tourney_name = '' # TODO: How should I get this value? Base this off of the channel?
-    tourney_info = Tournament(tourney_name, message.guild.name)
+    guild_tourneys = get_guild_tourneys(DB_USER_NAME, DB_PASSWORD, message.guild.name)
 
     # Get monitored channels
-    monitored_channels = get_tourney_channels(DB_USER_NAME, DB_PASSWORD, tourney_info)
+    tourney_channels = get_tourney_channels(DB_USER_NAME, DB_PASSWORD, guild_tourneys)
+    monitored_channels  = {channel: tourney_name for tourney_name, tourney_channels in tourney_channels.items() for channel in tourney_channels}
 
     # Check if message should be processed
-    if message.channel.name in monitored_channels.keys():
+    if parse_command(DB_USER_NAME, DB_PASSWORD, message):
+        return
+    elif message.channel.name in monitored_channels.keys():
         # Get channel type
-        channel_type = monitored_channels[message.channel.name]
-
-        # Check for discord command
-        if parse_command(DB_USER_NAME, DB_PASSWORD, message):
-            return
+        tourney_name = monitored_channels[message.channel.name]
+        tourney_info = Tournament(tourney_name, message.guild.name)
+        channel_type = tourney_channels[tourney_name][message.channel.name]
 
         # Check for sign up or game rec submissions
         if channel_type == 'sign_up':

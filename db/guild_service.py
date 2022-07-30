@@ -1,6 +1,25 @@
 # Internal Includes
 from .db_connect import database_connect, convert_to_df
 
+def get_guild_tourneys(user_name: str, password: str, guild_name: str):
+    client = database_connect(user_name, password)
+
+    # Get database
+    database = client['aoe-game-bot']
+
+    # Get tables
+    tbl_tournaments = database['tournaments']
+
+    # Query for deletion
+    name_query = {'guild_name' : guild_name}
+
+    # Get tournament IDs
+    tourneys = convert_to_df(tbl_tournaments, name_query)
+
+    client.close()
+
+    return tourneys
+
 def delete_guild_tourneys(user_name: str, password: str, guild_name: str):
     # Connect to DB
     client = database_connect(user_name, password)

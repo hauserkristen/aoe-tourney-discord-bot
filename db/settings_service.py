@@ -1,4 +1,5 @@
 # External Includes
+from pandas import DataFrame
 from pymongo import MongoClient
 import json
 from typing import Any
@@ -30,7 +31,7 @@ def post_tourney_setting(user_name: str, password: str, tourney_info: Tournament
     client.close()
     return
 
-def _find_tourney_settings(client: MongoClient, tourney_info: Tournament,):
+def _find_tourney_settings(client: MongoClient, tourney_info: Tournament):
     # Get database
     database = client['aoe-game-bot']
 
@@ -58,36 +59,40 @@ def _find_setting_id(client: MongoClient, setting_name: str):
 
     return setting_id
 
-def get_tourney_channels(user_name: str, password: str, tourney_info: Tournament,):
+def get_tourney_channels(user_name: str, password: str, guild_tourneys: DataFrame):
     # Connect to DB
     client = database_connect(user_name, password)
 
-    # Get tourney settings
-    tourney_settings = _find_tourney_settings(client, tourney_info)
+    tourney_channels = {}
+    for tourney in guild_tourneys:
+        tourney_info = Tournament(tourney['name'], tourney['guild_name'])
+        tourney_channels[tourney_info.name] = {}
 
-    # Get rec channel setting ID
-    rec_channel_id = _find_setting_id(client, 'rec_channels')
-    sign_up_channel_id = _find_setting_id(client, 'sign_up_channel')
+        # Get tourney settings
+        tourney_settings = _find_tourney_settings(client, tourney_info)
 
-    # Query for settings
-    rec_setting = tourney_settings.loc[tourney_settings['setting_id'] == rec_channel_id]
-    sign_up_setting = tourney_settings.loc[tourney_settings['setting_id'] == sign_up_channel_id]
+        # Get rec channel setting ID
+        rec_channel_id = _find_setting_id(client, 'rec_channels')
+        sign_up_channel_id = _find_setting_id(client, 'sign_up_channel')
 
-    # Split rec setting
-    rec_channels = rec_setting['value'].split(',')
-    sign_up_channel = sign_up_setting['value']
+        # Query for settings
+        rec_setting = tourney_settings.loc[tourney_settings['setting_id'] == rec_channel_id]
+        sign_up_setting = tourney_settings.loc[tourney_settings['setting_id'] == sign_up_channel_id]
 
-    client.close()
+        # Split rec setting
+        rec_channels = rec_setting['value'].split(',')
+        sign_up_channel = sign_up_setting['value']
 
-    # Create output map
-    output = {}
-    output[sign_up_channel] = 'sign_up'
-    for r_c in rec_channels:
-        output[r_c] = 'game_rec'
+        client.close()
 
-    return output
+        # Create output map
+        tourney_channels[tourney_info.name][sign_up_channel] = 'sign_up'
+        for r_c in rec_channels:
+            tourney_channels[tourney_info.name][r_c] = 'game_rec'
 
-def get_tourney_summary_channel(user_name: str, password: str, tourney_info: Tournament,):
+    return tourney_channels[tourney_info.name]
+
+def get_tourney_summary_channel(user_name: str, password: str, tourney_info: Tournament):
     # Connect to DB
     client = database_connect(user_name, password)
 
@@ -105,7 +110,7 @@ def get_tourney_summary_channel(user_name: str, password: str, tourney_info: Tou
 
     return setting_value
 
-def get_tourney_games_per_stage(user_name: str, password: str, tourney_info: Tournament,):
+def get_tourney_games_per_stage(user_name: str, password: str, tourney_info: Tournament):
     # Connect to DB
     client = database_connect(user_name, password)
 
@@ -126,7 +131,7 @@ def get_tourney_games_per_stage(user_name: str, password: str, tourney_info: Tou
 
     return setting_value
 
-def get_tourney_map_pool(user_name: str, password: str, tourney_info: Tournament,):
+def get_tourney_map_pool(user_name: str, password: str, tourney_info: Tournament):
     # Connect to DB
     client = database_connect(user_name, password)
 
@@ -150,7 +155,7 @@ def get_tourney_map_pool(user_name: str, password: str, tourney_info: Tournament
 
     return map_values
 
-def delete_tourney_settings(user_name: str, password: str, tourney_info: Tournament,):
+def delete_tourney_settings(user_name: str, password: str, tourney_info: Tournament):
     # Connect to DB
     client = database_connect(user_name, password)
 
