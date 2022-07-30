@@ -38,7 +38,7 @@ class Game():
 
 class GameSet():
     def __init__(self):
-        self.tourney_name = ''
+        self.tourney = Tournament()
         self.stage = ''
         self.p1_name = ''
         self.p2_name = ''
@@ -78,7 +78,7 @@ class GameSet():
 
 class Participant():
     def __init__(self):
-        self.tourney_name =  ''
+        self.tourney = Tournament()
         self.discord_name = ''
         self.in_game_name = ''
         self.aoe2_net_id = 0
@@ -98,6 +98,9 @@ class Participant():
             'alt_accounts': self.alt_accounts,
             'category': self.category
         }
+
+    def get_tourney(self):
+        return self.tourney.to_dict()
 
     def validate(self):
         # TODO

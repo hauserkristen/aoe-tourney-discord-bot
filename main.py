@@ -83,8 +83,12 @@ async def process_message(message: discord.Message):
     if message.author == client.user:
         return
 
+    # Create tourney object
+    tourney_name = '' # TODO: How should I get this value? Base this off of the channel?
+    tourney_info = Tournament(tourney_name, message.guild.name)
+
     # Get monitored channels
-    monitored_channels = get_tourney_channels(DB_USER_NAME, DB_PASSWORD, message.guild.name)
+    monitored_channels = get_tourney_channels(DB_USER_NAME, DB_PASSWORD, tourney_info)
 
     # Check if message should be processed
     if message.channel.name in monitored_channels.keys():
@@ -104,7 +108,7 @@ async def process_message(message: discord.Message):
                 return send_error_message(message, error_message)
             elif registration:
                 # Add to DB
-                success = post_participant(DB_USER_NAME, DB_PASSWORD, message.guild.name, registration)
+                success = post_participant(DB_USER_NAME, DB_PASSWORD, registration)
 
                 if success:
                     # If successfully processed thumbs up post
@@ -115,8 +119,8 @@ async def process_message(message: discord.Message):
                     return
         elif channel_type == 'game_rec':
             # Get valid maps from tourney info
-            tourney_map_pool = get_tourney_map_pool(DB_USER_NAME, DB_PASSWORD, message.guild.name)
-            games_per_round = get_tourney_games_per_stage(DB_USER_NAME, DB_PASSWORD, message.guild.name)
+            tourney_map_pool = get_tourney_map_pool(DB_USER_NAME, DB_PASSWORD, tourney_info)
+            games_per_round = get_tourney_games_per_stage(DB_USER_NAME, DB_PASSWORD, tourney_info)
 
             game_set, available_maps, error_message, success = parse_discord_message(message.content, tourney_map_pool, games_per_round)
 
@@ -164,15 +168,15 @@ async def process_message(message: discord.Message):
                     return send_error_message(message, error_message)
 
                 # Add to DB
-                success = post_set(DB_USER_NAME, DB_PASSWORD, message.guild.name, game_set)
+                success = post_set(DB_USER_NAME, DB_PASSWORD, game_set)
 
                 if success:
                     # If successfully processed thumbs up post
                     await message.add_reaction('\U0001F44D')
 
                     # Write to summary output channel
-                    summary_channel_name = get_tourney_summary_channel(DB_USER_NAME, DB_PASSWORD, message.guild.name)
-                    await update_summary_message(game_set, message.guild.name, summary_channel_name, message.channel.name)
+                    summary_channel_name = get_tourney_summary_channel(DB_USER_NAME, DB_PASSWORD, tourney_info)
+                    await update_summary_message(game_set, tourney_info, summary_channel_name, message.channel.name)
 
                     print('Logged: {} vs {}'.format(game_set.p1_name, game_set.p2_name))
                 else:
@@ -181,9 +185,9 @@ async def process_message(message: discord.Message):
 
     return
  
-async def update_summary_message(new_rec: GameSet, guild_name: str, summary_channel_name: str, group_name: str):
+async def update_summary_message(new_rec: GameSet, tourney_info: Tournament, summary_channel_name: str, group_name: str):
     # Find last message sent by bot
-    guild = discord.utils.find(lambda g: g.name == guild_name, client.guilds)
+    guild = discord.utils.find(lambda g: g.name == tourney_info.guild_name, client.guilds)
     channel = discord.utils.find(lambda g: g.name == summary_channel_name, guild.channels)
     messages = await channel.history(limit=500).flatten()
     last_message = None

@@ -5,23 +5,12 @@ from typing import Any
 
 # Internal Includes
 from .db_connect import database_connect, convert_to_df
+from .utils import Tournament
 
-def post_tourney_setting(user_name: str, password: str, setting_name: str, setting_value: Any):
+def post_tourney_setting(user_name: str, password: str, tourney_info: Tournament, setting_name: str, setting_value: Any):
     # Connect to DB
     client = database_connect(user_name, password)
 
-    # Get database
-    database = client['aoe-game-bot']
-
-    # Add settings to tourney settings table
-    tbl_tourney_settings = database['tourney_settings']
-
-    # TODO
-
-    client.close()
-    return
-
-def _find_tourney_settings(client: MongoClient, guild_name: str):
     # Get database
     database = client['aoe-game-bot']
 
@@ -30,7 +19,27 @@ def _find_tourney_settings(client: MongoClient, guild_name: str):
     tbl_tourney_settings = database['tourney_settings']
 
     # Get tournament ID
-    tourney_id = convert_to_df(tbl_tournaments, {'discord_name' : guild_name})['_id']
+    tourney_id = convert_to_df(tbl_tournaments, tourney_info.to_dict())['_id']
+
+    # Get setting ID
+    setting_id = _find_setting_id(client, setting_name)
+
+    # Add setting
+    tbl_tourney_settings.insert_one({'tournament_id': tourney_id, 'setting_id': setting_id, 'value': setting_value})
+
+    client.close()
+    return
+
+def _find_tourney_settings(client: MongoClient, tourney_info: Tournament,):
+    # Get database
+    database = client['aoe-game-bot']
+
+    # Get tables
+    tbl_tournaments = database['tournaments']
+    tbl_tourney_settings = database['tourney_settings']
+
+    # Get tournament ID
+    tourney_id = convert_to_df(tbl_tournaments, tourney_info.to_dict())['_id']
 
     # Query for settings
     tourney_settings = convert_to_df(tbl_tourney_settings, {'tournament_id': tourney_id})
@@ -49,20 +58,20 @@ def _find_setting_id(client: MongoClient, setting_name: str):
 
     return setting_id
 
-def get_tourney_channels(user_name: str, password: str, guild_name: str):
+def get_tourney_channels(user_name: str, password: str, tourney_info: Tournament,):
     # Connect to DB
     client = database_connect(user_name, password)
 
     # Get tourney settings
-    tourney_settings = _find_tourney_settings(client, guild_name)
+    tourney_settings = _find_tourney_settings(client, tourney_info)
 
     # Get rec channel setting ID
     rec_channel_id = _find_setting_id(client, 'rec_channels')
     sign_up_channel_id = _find_setting_id(client, 'sign_up_channel')
 
     # Query for settings
-    rec_setting = convert_to_df(tourney_settings, {'setting_id': rec_channel_id})
-    sign_up_setting = convert_to_df(tourney_settings, {'setting_id': sign_up_channel_id})
+    rec_setting = tourney_settings.loc[tourney_settings['setting_id'] == rec_channel_id]
+    sign_up_setting = tourney_settings.loc[tourney_settings['setting_id'] == sign_up_channel_id]
 
     # Split rec setting
     rec_channels = rec_setting['value'].split(',')
@@ -78,36 +87,36 @@ def get_tourney_channels(user_name: str, password: str, guild_name: str):
 
     return output
 
-def get_tourney_summary_channel(user_name: str, password: str, guild_name: str):
+def get_tourney_summary_channel(user_name: str, password: str, tourney_info: Tournament,):
     # Connect to DB
     client = database_connect(user_name, password)
 
     # Get tourney settings
-    tourney_settings = _find_tourney_settings(client, guild_name)
+    tourney_settings = _find_tourney_settings(client, tourney_info)
 
     # Get rec channel setting ID
     rec_channel_id = _find_setting_id(client, 'summary_channel')
 
     # Query for settings
-    setting = convert_to_df(tourney_settings, {'setting_id': rec_channel_id})
+    setting = tourney_settings.loc[tourney_settings['setting_id'] == rec_channel_id]
     setting_value = setting['value']
 
     client.close()
 
     return setting_value
 
-def get_tourney_games_per_stage(user_name: str, password: str, guild_name: str):
+def get_tourney_games_per_stage(user_name: str, password: str, tourney_info: Tournament,):
     # Connect to DB
     client = database_connect(user_name, password)
 
     # Get tourney settings
-    tourney_settings = _find_tourney_settings(client, guild_name)
+    tourney_settings = _find_tourney_settings(client, tourney_info)
 
     # Get rec channel setting ID
     games_per_stage_id = _find_setting_id(client, 'games_per_stage')
 
     # Query for settings
-    setting = convert_to_df(tourney_settings, {'setting_id': games_per_stage_id})
+    setting = tourney_settings.loc[tourney_settings['setting_id'] == games_per_stage_id]
     setting_value = setting['value']
 
     # Convert to dict from JSON
@@ -117,7 +126,7 @@ def get_tourney_games_per_stage(user_name: str, password: str, guild_name: str):
 
     return setting_value
 
-def get_tourney_map_pool(user_name: str, password: str, guild_name: str):
+def get_tourney_map_pool(user_name: str, password: str, tourney_info: Tournament,):
     # Connect to DB
     client = database_connect(user_name, password)
 
@@ -129,7 +138,7 @@ def get_tourney_map_pool(user_name: str, password: str, guild_name: str):
     tbl_maps = database['maps']
 
     # Get tournament ID
-    tourney_id = convert_to_df(tbl_tournaments, {'discord_name' : guild_name})['_id']
+    tourney_id = convert_to_df(tbl_tournaments, tourney_info.to_dict())['_id']
 
     # Get map names 
     maps = convert_to_df(tbl_maps, {'tournament_id': tourney_id})
@@ -141,9 +150,30 @@ def get_tourney_map_pool(user_name: str, password: str, guild_name: str):
 
     return map_values
 
-def delete_settings():
-    # TODO
-    pass
+def delete_tourney_settings(user_name: str, password: str, tourney_info: Tournament,):
+    # Connect to DB
+    client = database_connect(user_name, password)
+
+    # Get database
+    database = client['aoe-game-bot']
+
+    # Get tourney settings table
+    tbl_tournaments = database['tournaments']
+    tbl_tourney_settings = database['tourney_settings']
+
+    # Get tournament ID
+    tourney_id = convert_to_df(tbl_tournaments, tourney_info.to_dict())['_id']
+
+    # Query for rest of deletions
+    id_query = {'_id' : tourney_id}
+
+    # Drop from tables
+    tbl_tourney_settings.delete_many(id_query)
+
+    # TODO: What should happen to all the sets/signups?
+
+    client.close()
+    return
 
 def create_settings(user_name: str, password: str):
     client = database_connect(user_name, password)

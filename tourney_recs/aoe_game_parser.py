@@ -193,7 +193,7 @@ def parse_game_files(aoe_game_filenames: List[str], aoe_game_files: list, game_s
             missing_scores.append(i_g)
 
     if len(missing_scores) == 0:
-        if game_set.p1_reported_scoree != p1_verified_score or game_set.p2_reported_score != p2_verified_score:
+        if game_set.p1_reported_score != p1_verified_score or game_set.p2_reported_score != p2_verified_score:
             error_message = 'The recently submitted set has a score mismatch. You submitted a score of: {}-{} but found recs for a score of {}-{}. Please correct submission. Thank you'.format(
                 game_set.p1_reported_score,
                 game_set.p2_reported_score,

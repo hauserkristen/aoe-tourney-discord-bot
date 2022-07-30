@@ -33,7 +33,7 @@ def delete_tourney(user_name: str, password: str, tourney_info: Tournament):
     tbl_participants = database['participants']
 
     # Get tournament ID
-    tourney_id = convert_to_df(tbl_tournaments, tourney_info.to_dict)['_id']
+    tourney_id = convert_to_df(tbl_tournaments, tourney_info.to_dict())['_id']
 
     # Query for rest of deletions
     id_query = {'_id' : tourney_id}
