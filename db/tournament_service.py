@@ -9,9 +9,13 @@ def post_tourney(user_name: str, password: str, tourney_info: Tournament):
     # Get database
     database = client['aoe-game-bot']
 
-    # Add tourney to tourney table
+    # Get table
     tbl_tourney = database['tournaments']
-    if tourney_info.validate():
+
+    # Check if tourney already exists
+    found_tourney = tbl_tourney.find_one(tourney_info.to_dict())
+
+    if found_tourney is None and tourney_info.validate():
         tbl_tourney.insert_one(tourney_info.to_dict())
 
     client.close()
@@ -33,13 +37,13 @@ def delete_tourney(user_name: str, password: str, tourney_info: Tournament):
     tbl_participants = database['participants']
 
     # Get tournament ID
-    tourney_id = convert_to_df(tbl_tournaments, tourney_info.to_dict())['_id']
+    tourney_id = str(convert_to_df(tbl_tournaments, tourney_info.to_dict())['_id'])
 
     # Query for rest of deletions
     id_query = {'_id' : tourney_id}
 
     # Drop from tables
-    tbl_tournaments.delete_one(id_query)
+    tbl_tournaments.delete_one(tourney_info.to_dict())
     tbl_tourney_settings.delete_many(id_query)
     tbl_sets.delete_many(id_query)
     tbl_maps.delete_many(id_query)

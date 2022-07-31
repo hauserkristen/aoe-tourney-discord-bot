@@ -41,12 +41,13 @@ def delete_guild_tourneys(user_name: str, password: str, guild_name: str):
     # Get tournament IDs
     tourney_ids = convert_to_df(tbl_tournaments, name_query)
     
-    for tourney_id in tourney_ids:
+    for _, tourney in tourney_ids.iterrows():
         # Query for rest of deletions
-        id_query = {'_id' : tourney_id['_id']}
+        id_query = {'tournament_id' : str(tourney['_id'])}
+        name_query = {'name': str(tourney['name']), 'guild_name': str(tourney['guild_name'])}
 
         # Drop from tables
-        tbl_tournaments.delete_one(id_query)
+        tbl_tournaments.delete_one(name_query)
         tbl_tourney_settings.delete_many(id_query)
         tbl_sets.delete_many(id_query)
         tbl_maps.delete_many(id_query)

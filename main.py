@@ -72,6 +72,13 @@ async def process_message(message: discord.Message):
     if message.author == client.user:
         return
 
+    # Check if message should be processed
+    parsed_message = parse_command(DB_USER_NAME, DB_PASSWORD, message)
+    if parsed_message:
+        if isinstance(parsed_message, str):
+            await message.channel.send(parsed_message, reference=message)
+        return
+
     # Create tourney object
     guild_tourneys = get_guild_tourneys(DB_USER_NAME, DB_PASSWORD, message.guild.name)
 
@@ -79,14 +86,8 @@ async def process_message(message: discord.Message):
     tourney_channels = get_tourney_channels(DB_USER_NAME, DB_PASSWORD, guild_tourneys)
     monitored_channels  = {channel: tourney_name for tourney_name, tourney_channels in tourney_channels.items() for channel in tourney_channels}
 
-    # Check if message should be processed
-    parsed_message = parse_command(DB_USER_NAME, DB_PASSWORD, message)
-    if parsed_message:
-        if isinstance(parsed_message, str):
-            await message.channel.send(parsed_message, reference=message)
-
-        return
-    elif message.channel.name in monitored_channels.keys():
+    # Check if message is monitored channel
+    if message.channel.name in monitored_channels.keys():
         # Get channel type
         tourney_name = monitored_channels[message.channel.name]
         tourney_info = Tournament(tourney_name, message.guild.name)

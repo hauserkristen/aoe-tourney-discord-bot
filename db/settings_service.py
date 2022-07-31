@@ -20,13 +20,17 @@ def post_tourney_setting(user_name: str, password: str, tourney_info: Tournament
     tbl_tourney_settings = database['tourney_settings']
 
     # Get tournament ID
-    tourney_id = convert_to_df(tbl_tournaments, tourney_info.to_dict())['_id']
+    tourney_id = str(convert_to_df(tbl_tournaments, tourney_info.to_dict())['_id'])
 
     # Get setting ID
     setting_id = _find_setting_id(client, setting_name)
 
+    # Check if tourney already exists
+    found_setting = tbl_tourney_settings.find_one({'tournament_id': tourney_id, 'setting_id': setting_id})
+
     # Add setting
-    tbl_tourney_settings.insert_one({'tournament_id': tourney_id, 'setting_id': setting_id, 'value': setting_value})
+    if found_setting is None:
+        tbl_tourney_settings.insert_one({'tournament_id': tourney_id, 'setting_id': setting_id, 'value': setting_value})
 
     client.close()
     return
@@ -40,7 +44,7 @@ def _find_tourney_settings(client: MongoClient, tourney_info: Tournament):
     tbl_tourney_settings = database['tourney_settings']
 
     # Get tournament ID
-    tourney_id = convert_to_df(tbl_tournaments, tourney_info.to_dict())['_id']
+    tourney_id = str(convert_to_df(tbl_tournaments, tourney_info.to_dict())['_id'])
 
     # Query for settings
     tourney_settings = convert_to_df(tbl_tourney_settings, {'tournament_id': tourney_id})
@@ -55,7 +59,7 @@ def _find_setting_id(client: MongoClient, setting_name: str):
     tbl_settings = database['settings']
 
     # Get tournament ID
-    setting_id = convert_to_df(tbl_settings, {'name' : setting_name})['_id']
+    setting_id = str(convert_to_df(tbl_settings, {'name' : setting_name})['_id'])
 
     return setting_id
 
@@ -143,7 +147,7 @@ def get_tourney_map_pool(user_name: str, password: str, tourney_info: Tournament
     tbl_maps = database['maps']
 
     # Get tournament ID
-    tourney_id = convert_to_df(tbl_tournaments, tourney_info.to_dict())['_id']
+    tourney_id = str(convert_to_df(tbl_tournaments, tourney_info.to_dict())['_id'])
 
     # Get map names 
     maps = convert_to_df(tbl_maps, {'tournament_id': tourney_id})
@@ -167,7 +171,7 @@ def delete_tourney_settings(user_name: str, password: str, tourney_info: Tournam
     tbl_tourney_settings = database['tourney_settings']
 
     # Get tournament ID
-    tourney_id = convert_to_df(tbl_tournaments, tourney_info.to_dict())['_id']
+    tourney_id = str(convert_to_df(tbl_tournaments, tourney_info.to_dict())['_id'])
 
     # Query for rest of deletions
     id_query = {'_id' : tourney_id}

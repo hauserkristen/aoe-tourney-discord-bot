@@ -3,7 +3,7 @@ import discord
 
 # Internal imports
 from db import get_settings
-from .tourney_commands  import setup_tourney
+from .tournament_commands  import setup_tourney
 from .setting_commands import save_settings
 from .set_comamnds import log_admin_win
 from .utils import extract_key_value_pairs, has_keys

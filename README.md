@@ -17,6 +17,7 @@ In Progress
     - Allow admin win
 
 Open items to work on, generally listed in order of importance:
+- Should entries be able to be edited after initial creation?
 - Improved logging of errors and when they occur
 - Accomodate CM for map drafting
 - Accomodate non-CM for civ drafting (what if hidden civ no repeat, or just global bans)
