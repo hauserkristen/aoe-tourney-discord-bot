@@ -8,7 +8,7 @@ from typing import Any, Dict
 from .db_connect import database_connect, convert_to_df
 from .utils import Tournament
 
-def post_tourney_setting(user_name: str, password: str, tourney_info: Tournament, setting_name: str, setting_value: Any):
+def post_tourney_setting(user_name: str, password: str, tourney_info: Tournament, setting_name: str, setting_value: str):
     # Connect to DB
     client = database_connect(user_name, password)
 

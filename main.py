@@ -80,7 +80,11 @@ async def process_message(message: discord.Message):
     monitored_channels  = {channel: tourney_name for tourney_name, tourney_channels in tourney_channels.items() for channel in tourney_channels}
 
     # Check if message should be processed
-    if parse_command(DB_USER_NAME, DB_PASSWORD, message):
+    parsed_message = parse_command(DB_USER_NAME, DB_PASSWORD, message)
+    if parsed_message:
+        if isinstance(parsed_message, str):
+            await message.channel.send(parsed_message, reference=message)
+
         return
     elif message.channel.name in monitored_channels.keys():
         # Get channel type
@@ -109,9 +113,9 @@ async def process_message(message: discord.Message):
         elif channel_type == 'game_rec':
             # Get valid maps from tourney info
             tourney_map_pool = get_tourney_map_pool(DB_USER_NAME, DB_PASSWORD, tourney_info)
-            games_per_round = get_tourney_games_per_stage(DB_USER_NAME, DB_PASSWORD, tourney_info)
+            games_per_stage = get_tourney_games_per_stage(DB_USER_NAME, DB_PASSWORD, tourney_info)
 
-            game_set, available_maps, error_message, success = parse_discord_message(message.content, tourney_map_pool, games_per_round)
+            game_set, available_maps, error_message, success = parse_discord_message(message.content, tourney_map_pool, games_per_stage)
 
             if not success:
                 # If message is likely not a rec submission
@@ -123,7 +127,7 @@ async def process_message(message: discord.Message):
                 print('Trying: {} vs {}'.format(game_set.p1_name, game_set.p2_name))
 
                 # Match round to number of games
-                num_games = games_per_round[game_set.stage]
+                num_games = games_per_stage[game_set.stage]
 
                 # Download games files
                 attachment_filenames = [attachment.filename for attachment in message.attachments]

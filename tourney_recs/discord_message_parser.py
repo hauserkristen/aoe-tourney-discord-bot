@@ -8,7 +8,7 @@ from db import GameSet
 from constants import *
 from .name_matching import estimate_host_and_guest
 
-def parse_discord_message(message: str, tourney_map_pool: List[str], games_per_round: Dict[str, int]):
+def parse_discord_message(message: str, tourney_map_pool: List[str], games_per_stage: Dict[str, int]):
     game_set = GameSet()
 
     # Parse string
@@ -42,14 +42,14 @@ def parse_discord_message(message: str, tourney_map_pool: List[str], games_per_r
         error_message = 'The recently submitted set does not meet format due to missing or incomplete field: Stage. Please check sample and correct submission. Thank you'
         return game_set, [], error_message, False
     else:
-        game_set.stage = parse_stage(stage[0].strip(), games_per_round)
+        game_set.stage = parse_stage(stage[0].strip(), games_per_stage)
 
         # Error handling for unknown stage
         if game_set.stage == -1:
             error_message = 'The recently submitted set does not meet format due to missing or incomplete field: Stage. Found an unknown string ({}), valid strings are ({}). Please check sample and correct submission. Thank you'.format(stage[0].strip(), ','.join(STR_TO_STAGE.keys()))
             return game_set, [], error_message, False
         elif game_set.stage == 0:
-            error_message = 'The recently submitted set does not meet format due to missing or incomplete field: Stage. Found an unknown int ({}), valid ints are ({}). Please check sample and correct submission. Thank you'.format(stage[0].strip(), ','.join(games_per_round.keys()))
+            error_message = 'The recently submitted set does not meet format due to missing or incomplete field: Stage. Found an unknown int ({}), valid ints are ({}). Please check sample and correct submission. Thank you'.format(stage[0].strip(), ','.join(games_per_stage.keys()))
             return game_set, [], error_message, False
 
     if len(maps) == 0:
@@ -124,13 +124,13 @@ def parse_discord_message(message: str, tourney_map_pool: List[str], games_per_r
 
     return game_set, available_maps, None, True
 
-def parse_stage(stage_str: str, games_per_round: Dict[str, int]):
+def parse_stage(stage_str: str, games_per_stage: Dict[str, int]):
     if stage_str in STR_TO_STAGE.keys():
         return STR_TO_STAGE[stage_str]
     elif stage_str.isnumeric():
         try:
             stage_int = int(stage_str)
-            if stage_int not in games_per_round.keys():
+            if stage_int not in games_per_stage.keys():
                 return 0
             else:
                 return stage_int
